@@ -1,2 +1,8 @@
 # Ignore pdf files
 *.pdf
+
+# Ignore hidden files
+.*
+
+# Ignore tmp directory
+tmp
