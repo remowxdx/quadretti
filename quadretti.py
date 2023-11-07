@@ -351,11 +351,12 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
             self.q_rl(1, 0)
             self.q_rm(1, 0)
         elif character == "0":
+            k = 0.3
             self.q_rm(0.5, -2)
-            self.q_rs([(-0.4, 0), (-0.1, 1)])
-            self.q_rs([(0.1, 1), (0.4, 0)])
-            self.q_rs([(0.4, 0), (0.1, -1)])
-            self.q_rs([(-0.1, -1), (-0.4, 0)])
+            self.q_rs([(-0.5 + k, 0), (-k, k), (0, 1 - k)])
+            self.q_rs([(0, 1 - k), (k, k), (0.5 - k, 0)])
+            self.q_rs([(0.5 - k, 0), (k, -k), (0, k - 1)])
+            self.q_rs([(0, k - 1), (-k, -k), (k - 0.5, 0)])
             self.q_rm(1.5, 2)
         elif character == "1":
             self.q_rm(0, -1)
@@ -366,8 +367,8 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
             self.q_rm(0, -1.5)
             self.q_rs([(0, -0.5), (0.5, 0)])
             self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(-0.1, 0.15), (-0.1, 0.1)])
-            self.q_rl(-0.8, 1.25)
+            self.q_rs([(0, 0.25), (-0.25, 0), (-0.15, 0.25)])
+            self.q_rl(-0.6, 1)
             self.q_rl(1, 0)
             self.q_rm(1, 0)
         elif character == "3":
@@ -473,9 +474,9 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
             self.q_rm(1, 0)
         elif character == ",":
             self.q_dot()
-            self.q_rm(0.1, 0)
-            self.q_rl(-0.25, 0.25)
-            self.q_rm(1.25, -0.25)
+            self.q_rm(0.05, 0.05)
+            self.q_rl(-0.2, 0.2)
+            self.q_rm(1.15, -0.25)
         else:
             self.q_rl(0, -2)
             self.q_rl(1, 0)
@@ -486,6 +487,7 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
 
     def write(self, text):
         """Write text."""
+        self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)  # pylint: disable=no-member
         for character in text:
             self.char(character)
 
