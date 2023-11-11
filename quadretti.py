@@ -3,7 +3,6 @@
 Disegna un foglio quadrettato
 """
 
-import sys
 import math
 import cairo
 from cairo import PDFMetadata  # pylint: disable=no-name-in-module
@@ -28,6 +27,7 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
     """Squaring class"""
 
     def __init__(self, args):
+        self.path = args.file
         self.page_number = 0
         self.border_width = 0.4
         self.thick_line_width = 0.2
@@ -51,7 +51,7 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
 
         # pylint: disable=no-member
         self.pdf = cairo.PDFSurface(
-            "quadretti.pdf", mm_to_pt(self.width), mm_to_pt(self.height)
+            self.path, mm_to_pt(self.width), mm_to_pt(self.height)
         )
         self.pdf.set_metadata(PDFMetadata.CREATOR, "quadretti.py")
         self.pdf.set_metadata(
@@ -226,7 +226,7 @@ def parse_command_line():
         "--margin",
         type=float,
         nargs="?",
-        help="Margin to leave around the grid",
+        help="Margin to leave around the grid in mm",
         default=16.0,
     )
     parser.add_argument(
@@ -234,7 +234,7 @@ def parse_command_line():
         "--side",
         type=float,
         nargs="?",
-        help="Side of squares of grid",
+        help="Side of squares of grid in mm",
         default=4.0,
     )
     parser.add_argument(
@@ -313,8 +313,6 @@ def main():
             with open(args.input, "rt", encoding="utf-8") as input_file:
                 text = input_file.read()
 
-    print(args)
-    print(text)
     for _page in range(args.pages):
         quadretti.page()
         if text is not None:
@@ -324,6 +322,7 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
     import argparse
 
     main()
