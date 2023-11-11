@@ -6,3 +6,5 @@
 
 # Ignore tmp directory
 tmp
+
+__pycache__

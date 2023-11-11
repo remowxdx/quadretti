@@ -7,6 +7,7 @@ import math
 import cairo
 from cairo import PDFMetadata  # pylint: disable=no-name-in-module
 
+from elementary_font import ElementaryFont
 
 A4WIDTH = 210.0
 A4HEIGHT = 297.0
@@ -168,328 +169,16 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
         # for point in pts:
         #     self.q_rl(*point)
 
-    def char(self, character):  # pylint: disable=too-many-statements,too-many-branches
-        """Draw char. For now only " ", ".", A, B."""
-        if character == " ":
-            self.q_rm(2, 0)
-        elif character == ".":
-            self.q_dot()
-            self.q_rm(1, 0)
-
-        elif character.lower() == "a":
-            self.q_rl(0.5, -2)
-            self.q_rl(0.5, 2)
-            self.q_rm(-0.75, -1)
-            self.q_rl(0.5, 0)
-            self.q_rm(1.25, 1)
-        elif character.lower() == "b":
-            self.q_rl(0, -2)
-            self.q_rs([(1, 0), (0, 1), (-1, 0)])
-            self.q_rs([(1, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-1, 0)])
-            self.q_rm(2, 0)
-        elif character.lower() == "c":
-            self.q_rm(1, -1.5)
-            self.q_rs([(0, -0.7), (-1.1, 0), (0.1, 1.1)])
-            self.q_rl(0, 0.2)
-            self.q_rs([(-0.1, 1.1), (1.1, 0), (0, -0.7)])
-            self.q_rm(1, 0.5)
-        elif character.lower() == "d":
-            self.q_rl(0, -2)
-            self.q_rs([(1, 0), (0.25, 1.75), (0.15, 0.25), (-1.4, 0)])
-            self.q_rm(2, 0)
-        elif character.lower() == "e":
-            self.q_rm(1, -2)
-            self.q_rl(-1, 0)
-            self.q_rl(0, 2)
-            self.q_rl(1, 0)
-            self.q_rm(-1, -1)
-            self.q_rl(0.5, 0)
-            self.q_rm(1.5, 1)
-        elif character.lower() == "f":
-            self.q_rm(1, -2)
-            self.q_rl(-1, 0)
-            self.q_rl(0, 2)
-            self.q_rm(0, -1)
-            self.q_rl(0.5, 0)
-            self.q_rm(1.5, 1)
-        elif character.lower() == "g":
-            self.q_rm(1, -1.5)
-            self.q_rs([(0, -0.7), (-1.1, 0), (0.1, 1.1)])
-            self.q_rl(0, 0.2)
-            self.q_rs([(-0.1, 1.1), (1.1, 0), (0, -0.8)])
-            self.q_rl(0, -0.4)
-            self.q_rl(-0.4, 0)
-            self.q_rm(1.4, 1)
-        elif character.lower() == "h":
-            self.q_rm(0, -2)
-            self.q_rl(0, 2)
-            self.q_rm(1, -2)
-            self.q_rl(0, 2)
-            self.q_rm(-1, -1)
-            self.q_rl(1, 0)
-            self.q_rm(1, 1)
-        elif character.lower() == "i":
-            self.q_rm(0.5, -2)
-            self.q_rl(0, 2)
-            self.q_rm(-0.5, -2)
-            self.q_rl(1, 0)
-            self.q_rm(-1, 2)
-            self.q_rl(1, 0)
-            self.q_rm(1, 0)
-        elif character.lower() == "j":
-            self.q_rm(0, -2)
-            self.q_rl(1, 0)
-            self.q_rl(0, 1)
-            self.q_rs([(0, 1.2), (-1, 0), (0, -0.6)])
-            self.q_rm(2, 0.4)
-        elif character.lower() == "k":
-            self.q_rm(0, -2)
-            self.q_rl(0, 2)
-            self.q_rm(0, -1)
-            self.q_rl(1, -1)
-            self.q_rm(-0.8, 0.8)
-            self.q_rl(0.8, 1.2)
-            self.q_rm(1, 0)
-        elif character.lower() == "l":
-            self.q_rm(0, -2)
-            self.q_rl(0, 2)
-            self.q_rl(1, 0)
-            self.q_rm(1, 0)
-        elif character.lower() == "m":
-            self.q_rm(0, -2)
-            self.q_rl(0, 2)
-            self.q_rm(0, -2)
-            self.q_rl(0.5, 0.5)
-            self.q_rl(0.5, -0.5)
-            self.q_rl(0, 2)
-            self.q_rm(1, 0)
-        elif character.lower() == "n":
-            self.q_rm(0, -2)
-            self.q_rl(0, 2)
-            self.q_rm(0, -2)
-            self.q_rl(1, 2)
-            self.q_rl(0, -2)
-            self.q_rm(1, 2)
-        elif character.lower() == "o":
-            self.q_rm(0.5, -2)
-            self.q_rs([(-0.5, 0), (0, 1)])
-            self.q_rs([(0, 1), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, -1)])
-            self.q_rs([(0, -1), (-0.5, 0)])
-            self.q_rm(1.5, 2)
-        elif character.lower() == "p":
-            self.q_rl(0, -2)
-            self.q_rs([(1, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-1, 0)])
-            self.q_rm(2, 1)
-        elif character.lower() == "q":
-            self.q_rm(0.5, -2)
-            self.q_rs([(-0.5, 0), (0, 1)])
-            self.q_rs([(0, 1), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, -1)])
-            self.q_rs([(0, -1), (-0.5, 0)])
-            self.q_rm(0.15, 1.65)
-            self.q_rl(0.6, 0.6)
-            self.q_rm(0.75, -0.25)
-        elif character.lower() == "r":
-            self.q_rl(0, -2)
-            self.q_rs([(1, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-1, 0)])
-            self.q_rl(1, 1)
-            self.q_rm(1, 0)
-        elif character.lower() == "s":
-            self.q_rm(1, -2)
-            self.q_rl(-0.2, 0)
-            self.q_rs([(-0.8, 0), (0, 0.6)])
-            self.q_rs([(0, 0.4), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-0.5, 0)])
-            self.q_rl(-0.5, 0)
-            self.q_rm(2, 0)
-        elif character.lower() == "t":
-            self.q_rm(0.5, -2)
-            self.q_rl(0, 2)
-            self.q_rm(-0.5, -2)
-            self.q_rl(1, 0)
-            self.q_rm(1, 2)
-        elif character.lower() == "u":
-            self.q_rm(0, -2)
-            self.q_rl(0, 1)
-            self.q_rs([(0, 1), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, -1)])
-            self.q_rl(0, -1)
-            self.q_rm(1, 2)
-        elif character.lower() == "v":
-            self.q_rm(0, -2)
-            self.q_rl(0.5, 2)
-            self.q_rl(0.5, -2)
-            self.q_rm(1, 2)
-        elif character.lower() == "w":
-            self.q_rm(0, -2)
-            self.q_rl(0.25, 2)
-            self.q_rl(0.25, -1)
-            self.q_rl(0.25, 1)
-            self.q_rl(0.25, -2)
-            self.q_rm(1, 2)
-        elif character.lower() == "x":
-            self.q_rm(0, -2)
-            self.q_rl(1, 2)
-            self.q_rm(0, -2)
-            self.q_rl(-1, 2)
-            self.q_rm(2, 0)
-        elif character.lower() == "y":
-            self.q_rm(1, -2)
-            self.q_rl(-1, 2)
-            self.q_rm(0, -2)
-            self.q_rl(0.5, 1)
-            self.q_rm(1.5, 1)
-        elif character.lower() == "z":
-            self.q_rm(0, -2)
-            self.q_rl(1, 0)
-            self.q_rl(-1, 2)
-            self.q_rl(1, 0)
-            self.q_rm(1, 0)
-        elif character == "0":
-            k = 0.3
-            self.q_rm(0.5, -2)
-            self.q_rs([(-0.5 + k, 0), (-k, k), (0, 1 - k)])
-            self.q_rs([(0, 1 - k), (k, k), (0.5 - k, 0)])
-            self.q_rs([(0.5 - k, 0), (k, -k), (0, k - 1)])
-            self.q_rs([(0, k - 1), (-k, -k), (k - 0.5, 0)])
-            self.q_rm(1.5, 2)
-        elif character == "1":
-            self.q_rm(0, -1)
-            self.q_rs([(0.7, -0.3), (0.3, -0.7)])
-            self.q_rl(0, 2)
-            self.q_rm(1, 0)
-        elif character == "2":
-            self.q_rm(0, -1.5)
-            self.q_rs([(0, -0.5), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.25), (-0.25, 0), (-0.15, 0.25)])
-            self.q_rl(-0.6, 1)
-            self.q_rl(1, 0)
-            self.q_rm(1, 0)
-        elif character == "3":
-            self.q_rm(0, -2)
-            self.q_rl(0.5, 0)
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-0.5, 0)])
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-0.5, 0)])
-            self.q_rl(-0.5, 0)
-            self.q_rm(2, 0)
-        elif character == "4":
-            self.q_rm(1, -2)
-            self.q_rl(-1, 2)
-            self.q_rl(1, 0)
-            self.q_rm(-0.3, -0.3)
-            self.q_rl(0, 0.6)
-            self.q_rm(1.3, -0.3)
-        elif character == "5":
-            self.q_rm(0, -2)
-            self.q_rl(0, 1.1)
-            self.q_rs([(0, -0.3), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, 0.6)])
-            self.q_rs([(0, 0.6), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, -0.3)])
-            self.q_rm(0, -1.7)
-            self.q_rl(1, 0)
-            self.q_rm(1, 2)
-        elif character == "6":
-            self.q_rm(1, -2)
-            self.q_rl(-1, 1.3)
-            self.q_rs([(0, 0.7), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, -0.5)])
-            self.q_rs([(0, -0.5), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, 0.5)])
-            self.q_rm(2, 0.5)
-        elif character == "7":
-            self.q_rm(0, -2)
-            self.q_rl(1, 0)
-            self.q_rl(-1, 2)
-            self.q_rm(0.2, -1)
-            self.q_rl(0.6, 0)
-            self.q_rm(1.2, 1)
-        elif character == "8":
-            self.q_rm(0.5, -1)
-
-            self.q_rs([(0.5, 0), (0, -0.5)])
-            self.q_rs([(0, -0.5), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (0.5, 0)])
-
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, -0.5)])
-            self.q_rs([(0, -0.5), (0.5, 0)])
-
-            self.q_rm(1.5, 1)
-        elif character == "9":
-            self.q_rm(1, -1.5)
-
-            self.q_rs([(0, -0.5), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, -0.5)])
-
-            self.q_rl(0, 1)
-
-            self.q_rs([(0, 0.5), (-0.5, 0)])
-            self.q_rs([(-0.5, 0), (0, -0.5)])
-
-            self.q_rm(2, 0.5)
-        elif character == "!":
-            self.q_rm(0.5, -2)
-            self.q_rl(0, 1.5)
-            self.q_rm(0, 0.5)
-            self.q_dot()
-            self.q_rm(1.5, 0)
-
-        elif character == "?":
-            self.q_rm(0, -1.5)
-            self.q_rs([(0, -0.5), (0.5, 0)])
-            self.q_rs([(0.5, 0), (0, 0.5)])
-            self.q_rs([(0, 0.5), (-0.25, 0)])
-            self.q_rs([(-0.25, 0), (0, 0.5)])
-            self.q_rm(0, 0.5)
-            self.q_dot()
-            self.q_rm(1.5, 0)
-        elif character == "+":
-            self.q_rm(0, -1)
-            self.q_rl(1, 0)
-            self.q_rm(-0.5, -0.4)
-            self.q_rl(0, 0.8)
-            self.q_rm(1.5, 0.6)
-        elif character == "-":
-            self.q_rm(0, -1)
-            self.q_rl(1, 0)
-            self.q_rm(1, 1)
-        elif character == "=":
-            self.q_rm(0, -1)
-            self.q_rl(1, 0)
-            self.q_rm(-1, 1)
-            self.q_rl(1, 0)
-            self.q_rm(1, 0)
-        elif character == ",":
-            self.q_dot()
-            self.q_rm(0.05, 0.05)
-            self.q_rl(-0.2, 0.2)
-            self.q_rm(1.15, -0.25)
-        else:
-            self.q_rl(0, -2)
-            self.q_rl(1, 0)
-            self.q_rl(0, 2)
-            self.q_rl(-1, 0)
-            self.q_rm(2, 0)
-            # raise NotImplementedError(f'Character "{character}" not implemented.')
+    def q_lf(self):
+        """Line feed"""
+        self.q_cur = (1, self.q_cur[1] + 3)
 
     def write(self, text):
         """Write text."""
         self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)  # pylint: disable=no-member
+        font = ElementaryFont(self.q_rm, self.q_rl, self.q_rs, self.q_dot, self.q_lf)
         for character in text:
-            self.char(character)
+            font.char(character)
 
     def page(self):
         """Make new page"""
@@ -576,23 +265,12 @@ def main():
         quadretti.page()
         try:
             quadretti.q_m(1, 3)
-            quadretti.write("Aa bb cc dd ee ff.")
-            quadretti.q_m(1, 6)
-            quadretti.write("Gg hH iI jJ Kk lL.")
-            quadretti.q_m(1, 9)
-            quadretti.write("Mm Nn Oo Pp Qq Rr.")
-            quadretti.q_m(1, 12)
-            quadretti.write("Ss Tt Uu Vv Ww Xx.")
-            quadretti.q_m(1, 15)
-            quadretti.write("Yy Zz !! ?? -- ++.")
-            quadretti.q_m(1, 18)
-            quadretti.write("0123456789 ,, ==.")
-            quadretti.q_m(1, 21)
-            quadretti.write("3+5=8")
-            quadretti.q_m(1, 24)
-            quadretti.write("Il gatto sul tetto, si")
-            quadretti.q_m(1, 27)
-            quadretti.write("mangia il topo. Morto.")
+            quadretti.write("Aa Bb Cc Dd Ee Ff.\nGg Hh Ii Jj Kk Ll.\n")
+            quadretti.write("Mm Nn Oo Pp Qq Rr.\nSs Tt Uu Vv Ww Xx.\n")
+            quadretti.write("Yy Zz !! ?? -- ++.\n")
+            quadretti.write("0123456789 ,, ==.\n")
+            quadretti.write("3+5=8\n")
+            quadretti.write("Il gatto sul tetto, si\nmangia il topo. Morto.\n")
         except NotImplementedError:
             pass
         quadretti.save(args.file)
