@@ -3,6 +3,7 @@
 Disegna un foglio quadrettato
 """
 
+import sys
 import math
 import cairo
 from cairo import PDFMetadata  # pylint: disable=no-name-in-module
@@ -26,8 +27,7 @@ def lerp(p_0, p_1, t):
 class Quadretti:  # pylint: disable=too-many-instance-attributes
     """Squaring class"""
 
-    # pylint: disable=too-many-arguments
-    def __init__(self, margin, side, sheet_offset, thick, vertical):
+    def __init__(self, args):
         self.page_number = 0
         self.border_width = 0.4
         self.thick_line_width = 0.2
@@ -36,11 +36,11 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
         self.border_color = (0, 0, 0)
         self.width = A4WIDTH
         self.height = A4HEIGHT
-        self.margin = margin
-        self.side = side
-        self.sheet_offset = sheet_offset
-        self.thick = thick
-        self.vertical = vertical
+        self.margin = args.margin
+        self.side = args.side
+        self.sheet_offset = args.sheet_offset
+        self.thick = args.thick
+        self.vertical = args.vertical
         self.num_x = int(
             round((self.width - 2 * self.margin - self.sheet_offset) / self.side)
         )
@@ -67,6 +67,33 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
         self.delta_x = 0
         self.delta_y = 0
 
+    def horizontal_lines(self, grid_width):
+        """Draw the horizontal lines."""
+        for i in range(1, self.num_y):
+            if self.thick == 0 or i % self.thick != 0:
+                self.ctx.set_line_width(self.line_width)
+            else:
+                self.ctx.set_line_width(self.thick_line_width)
+            self.line(0, i * self.side, grid_width, i * self.side)
+
+    def vertical_lines(self, grid_height):
+        """Draw the vertical lines."""
+        for i in range(1, self.num_x):
+            if self.vertical and i % self.thick == 0:
+                self.ctx.set_line_width(self.thick_line_width)
+            else:
+                self.ctx.set_line_width(self.line_width)
+            self.line(i * self.side, 0, i * self.side, grid_height)
+
+    def outline(self, grid_width, grid_height):
+        """Draw the outline of the grid."""
+        self.ctx.set_line_width(self.border_width)
+        self.ctx.set_source_rgb(*self.border_color)
+        self.line(0, 0, grid_width, 0)
+        self.line(grid_width, 0, grid_width, grid_height)
+        self.line(grid_width, grid_height, 0, grid_height)
+        self.line(0, grid_height, 0, 0)
+
     def grid(self, delta_x, delta_y):
         """Draw the grid."""
 
@@ -78,29 +105,9 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
 
         self.ctx.set_source_rgb(*self.line_color)
 
-        # righe orizz
-        for i in range(1, self.num_y):
-            if self.thick == 0 or i % self.thick != 0:
-                self.ctx.set_line_width(self.line_width)
-            else:
-                self.ctx.set_line_width(self.thick_line_width)
-            self.line(0, i * self.side, grid_width, i * self.side)
-
-        # righe vert
-        for i in range(1, self.num_x):
-            if self.vertical and i % self.thick == 0:
-                self.ctx.set_line_width(self.thick_line_width)
-            else:
-                self.ctx.set_line_width(self.line_width)
-            self.line(i * self.side, 0, i * self.side, grid_height)
-
-        # contorno
-        self.ctx.set_line_width(self.border_width)
-        self.ctx.set_source_rgb(*self.border_color)
-        self.line(0, 0, grid_width, 0)
-        self.line(grid_width, 0, grid_width, grid_height)
-        self.line(grid_width, grid_height, 0, grid_height)
-        self.line(0, grid_height, 0, 0)
+        self.horizontal_lines(grid_width)
+        self.vertical_lines(grid_height)
+        self.outline(grid_width, grid_height)
 
     def line(self, x_0, y_0, x_1, y_1):
         """Draw line from (x_0, y_0) to (x_1, y_1)."""
@@ -182,6 +189,8 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
 
     def page(self):
         """Make new page"""
+        if self.page_number > 0:
+            self.pdf.show_page()
         self.page_number += 1
 
         # page = f"Pagina: {self.page_number}"
@@ -201,9 +210,8 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
         self.pdf.show_page()
 
 
-def main():
-    """Parse cmdline args and do the show!"""
-
+def parse_command_line():
+    """Parse the command line."""
     parser = argparse.ArgumentParser(description="Crea un foglio quadrettato (PDF).")
     parser.add_argument(
         "-p",
@@ -252,28 +260,67 @@ def main():
         help="Also make every n-th vertical line thicker",
     )
     parser.add_argument(
+        "-w", "--write", dest="text", type=str, help="Write this text on the page(s)."
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        help="Write text from file name on the page(s). Use '-' for standard input.",
+    )
+    parser.add_argument(
         "file", type=str, nargs="?", help="Output file", default="out.pdf"
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    quadretti = Quadretti(
-        args.margin, args.side, args.sheet_offset, args.thick, args.vertical
-    )
 
+def test(document):
+    """Print a test page."""
+    document.q_m(1, 3)
+    document.write("Aa Bb Cc Dd Ee Ff.\nGg Hh Ii Jj Kk Ll.\n")
+    document.write("Mm Nn Oo Pp Qq Rr.\nSs Tt Uu Vv Ww Xx.\n")
+    document.write("Yy Zz !! ?? -- ++.\n")
+    document.write("0123456789 ,, ==.\n")
+    document.write("3+5=8\n")
+    document.write("Il gatto sul tetto, si\nmangia il topo. Morto.\n")
+
+
+def print_text(document, text):
+    """Print text on pages."""
+    try:
+        document.q_m(1, 3)
+        document.write(text)
+    except NotImplementedError:
+        pass
+
+
+def main():
+    """Parse cmdline args and do the show!"""
+
+    args = parse_command_line()
+
+    quadretti = Quadretti(args)
+
+    if args.input is not None and args.text is not None:
+        raise ValueError("Cannot specify input TEXT and FILE at the same time.")
+
+    text = args.text
+    if args.input is not None:
+        if args.input == "-":
+            text = sys.stdin.read()
+        else:
+            with open(args.input, "rt", encoding="utf-8") as input_file:
+                text = input_file.read()
+
+    print(args)
+    print(text)
     for _page in range(args.pages):
         quadretti.page()
-        try:
-            quadretti.q_m(1, 3)
-            quadretti.write("Aa Bb Cc Dd Ee Ff.\nGg Hh Ii Jj Kk Ll.\n")
-            quadretti.write("Mm Nn Oo Pp Qq Rr.\nSs Tt Uu Vv Ww Xx.\n")
-            quadretti.write("Yy Zz !! ?? -- ++.\n")
-            quadretti.write("0123456789 ,, ==.\n")
-            quadretti.write("3+5=8\n")
-            quadretti.write("Il gatto sul tetto, si\nmangia il topo. Morto.\n")
-        except NotImplementedError:
-            pass
-        quadretti.save(args.file)
+        if text is not None:
+            print_text(quadretti, text)
+
+    quadretti.save(args.file)
 
 
 if __name__ == "__main__":
