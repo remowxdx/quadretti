@@ -203,10 +203,8 @@ class Quadretti:  # pylint: disable=too-many-instance-attributes
             # self.pdf.text(self.mx, self.my / 2 + 3, page)
             self.grid(self.m_x, self.m_y)
 
-    def save(self, filename):
+    def save(self):
         """Save to file."""
-        if not filename.lower().endswith(".pdf"):
-            filename += ".pdf"
         self.pdf.show_page()
 
 
@@ -269,7 +267,11 @@ def parse_command_line():
         help="Write text from file name on the page(s). Use '-' for standard input.",
     )
     parser.add_argument(
-        "file", type=str, nargs="?", help="Output file", default="out.pdf"
+        "file",
+        type=str,
+        nargs="?",
+        help="Output file ('-' for stdout).",
+        default="out.pdf",
     )
 
     return parser.parse_args()
@@ -300,6 +302,9 @@ def main():
 
     args = parse_command_line()
 
+    if args.file == "-":
+        args.file = sys.stdout.buffer
+
     quadretti = Quadretti(args)
 
     if args.input is not None and args.text is not None:
@@ -318,7 +323,7 @@ def main():
         if text is not None:
             print_text(quadretti, text)
 
-    quadretti.save(args.file)
+    quadretti.save()
 
 
 if __name__ == "__main__":
